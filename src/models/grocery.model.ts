@@ -40,15 +40,17 @@ const grocerySchema = new mongoose.Schema<IGrocery>(
     unit: {
       type: String,
       required: true,
+      enum: ["kg", "g", "liter", "ml", "piece", "pack"],
     },
     image: {
       type: String,
       required: true,
-    }
+    },
   },
   { timestamps: true }
 );
 
-const Grocery = mongoose.models.Grocery || mongoose.model("Grocery", grocerySchema);
+const Grocery =
+  mongoose.models.Grocery || mongoose.model("Grocery", grocerySchema);
 
 export default Grocery;
