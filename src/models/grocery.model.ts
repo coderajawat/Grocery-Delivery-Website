@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-interface IGrocery {
+export interface IGrocery {
   _id?: mongoose.Types.ObjectId;
   name: string;
   category: string;
@@ -15,7 +15,7 @@ const grocerySchema = new mongoose.Schema<IGrocery>(
   {
     name: {
       type: String,
-      reuqired: true,
+      required: true,
     },
     category: {
       type: String,
