@@ -1,5 +1,9 @@
 import { auth } from "@/auth";
+import AdminDashboard from "@/components/AdminDashboard";
+import DeliveryBoy from "@/components/DeliveryBoy";
 import EditRoleAndMobile from "@/components/EditRoleAndMobile";
+import Nav from "@/components/Nav";
+import UserDashboard from "@/components/UserDashboard";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import { redirect } from "next/navigation";
@@ -21,9 +25,18 @@ async function Home() {
     return <EditRoleAndMobile />;
   }
 
+  const plainUser = JSON.parse(JSON.stringify(user));
+  
   return (
     <>
-      <div>Home Page</div>
+      <Nav user={plainUser} />
+      {user.role == "user" ? (
+        <UserDashboard />
+      ) : user.role == "admin" ? (
+        <AdminDashboard />
+      ) : (
+        <DeliveryBoy />
+      )}
     </>
   );
 }
