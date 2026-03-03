@@ -131,6 +131,94 @@ const Checkout = () => {
     fetchAddress();
   }, [position]);
 
+  const handleCod = async () => {
+    try {
+      const result = await axios.post("/api/user/order", {
+        userId: userData?._id,
+        items: cartData.map((item) => ({
+          grocery: item._id,
+          name: item.name,
+          price: item.price,
+          unit: item.unit,
+          quantity: item.quantity,
+          image: item.image,
+        })),
+        totalAmount: finalTotal,
+        address: {
+          fullName: address.fullName,
+          mobile: address.mobile,
+          city: address.city,
+          state: address.state,
+          pincode: address.pincode,
+          fullAddress: address.fullAddress,
+          latitude: position ? position[0] : null,
+          longitude: position ? position[1] : null,
+        },
+        paymentMethod,
+      });
+      //console.log(result.data);
+      router.push("/user/order-success");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleOnlinePayment = async () => {
+    try {
+      const result = await axios.post("/api/user/payment", {
+        userId: userData?._id,
+        items: cartData.map((item) => ({
+          grocery: item._id,
+          name: item.name,
+          price: item.price,
+          unit: item.unit,
+          quantity: item.quantity,
+          image: item.image,
+        })),
+        totalAmount: finalTotal,
+        address: {
+          fullName: address.fullName,
+          mobile: address.mobile,
+          city: address.city,
+          state: address.state,
+          pincode: address.pincode,
+          fullAddress: address.fullAddress,
+          latitude: position ? position[0] : null,
+          longitude: position ? position[1] : null,
+        },
+        paymentMethod,
+      });
+
+      const { razorpayOrderId, amount, key } = result.data;
+
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => {
+        const options = {
+          key,
+          amount,
+          currency: "INR",
+          name: "Freshcart",
+          order_id: razorpayOrderId,
+          handler: function (response: RazorpayResponse) {
+            console.log(response.razorpay_payment_id);
+            router.push("/user/order-success");
+          },
+          theme: {
+            color: "#16a34a",
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      };
+
+      document.body.appendChild(script);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -343,7 +431,7 @@ const Checkout = () => {
             >
               <CreditCardIcon className="text-green-600" />
               <span className="font-medium text-gray-700">
-                Pay Online (stripe)
+                Pay Online (razorpay)
               </span>
             </button>
             <button
@@ -379,6 +467,13 @@ const Checkout = () => {
           <motion.button
             whileTap={{ scale: 0.93 }}
             className="w-full mt-6 bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-all font-semibold"
+            onClick={() => {
+              if (paymentMethod === "cod") {
+                handleCod();
+              } else {
+                handleOnlinePayment();
+              }
+            }}
           >
             {paymentMethod === "cod" ? "Place Order" : "Pay & Place Order"}
           </motion.button>
