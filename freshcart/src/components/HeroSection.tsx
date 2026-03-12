@@ -6,13 +6,9 @@ import delivery from "@/assets/delivery.webp";
 import shopAnytime from "@/assets/shop_anytime.webp";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 
 const HeroSection = () => {
-  const {userData} = useSelector((state: RootState) => state.user);
-  console.log(userData);
-  
+
   const slides = [
     {
       id: 1,

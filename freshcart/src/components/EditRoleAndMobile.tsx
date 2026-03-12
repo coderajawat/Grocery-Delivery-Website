@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "motion/react";
 import { ArrowRight, Bike, User, UserCog } from "lucide-react";
@@ -8,11 +8,11 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 const EditRoleAndMobile = () => {
-  const roles = [
+  const [roles, setRoles] = useState([
     { id: "admin", label: "Admin", icon: UserCog },
     { id: "user", label: "User", icon: User },
     { id: "deliveryBoy", label: "Delivery Boy", icon: Bike },
-  ];
+  ]);
   const [selectedRole, setSelectedRole] = useState("");
   const [mobile, setMobile] = useState("");
   const router = useRouter();
@@ -24,13 +24,29 @@ const EditRoleAndMobile = () => {
         role: selectedRole,
         mobile,
       });
-      await update({role: selectedRole});
+      await update({ role: selectedRole });
       console.log(result.data);
       router.push("/");
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    const checkforAdmin = async () => {
+      try {
+        const result = await axios.get("/api/check-for-admin");
+        console.log(result);
+        if (result.data.adminExist) {
+          setRoles(prev => prev.filter(r => r.id !== "admin"));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    checkforAdmin();
+  }, []);
+
   return (
     <div className="flex flex-col items-center min-h-screen p-6 w-full">
       <motion.h1
